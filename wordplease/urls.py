@@ -1,3 +1,4 @@
+# -* encoding:utf-8 *-
 """wordplease URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -18,4 +19,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+
+    # Url home va a la vista definida en el paquete blogs.views, método home
+    url(r'^$', 'blogs.views.home')
 ]
