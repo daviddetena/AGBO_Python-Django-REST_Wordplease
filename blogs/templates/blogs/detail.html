@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenido a Wordplease - Como Wordpress, pero en friki</title>
+    <title>Detalle de blog</title>
     <style>
         ul.post-list{
             list-style: none;
@@ -14,7 +14,7 @@
         ul.post-list li:last-child{
             margin-right: 0;
         }
-        
+
         ul.post-list li div{
             border:2px solid #f8f8f8;
             padding: 10px;
@@ -26,9 +26,8 @@
     </style>
 </head>
 <body>
-    <h1>Bienvenido a Wordplease</h1>
-    <p>Wordplease es como Wordpress, pero en friki</p>
-
+    <h1>Detalle de blog</h1>
+    <p>Listado de posts para el blog <strong>{{ blog }}</strong></p>
     {% if post_list|length > 0 %}
         <h2>Últimos posts publicados</h2>
         <ul class="post-list">
@@ -37,14 +36,14 @@
                 <div>
                     <img src="{{ post.imageUrl }}" alt="{{ post.title }}" height="150">
                     <h4>{{ post.title }}</h4>
-                    <p>Publicado por {{ post.blog.owner.first_name}} {{ post.blog.owner.last_name}} en el blog <strong>{{ post.blog.owner}}</strong></p>
-                    <p>{{ post.published_at}}</p>
+                    <p>Publicado por {{ post.blog.owner.first_name}} {{ post.blog.owner.last_name}}</p>
+                    <p>{{ post.published_at }}</p>
                 </div>
             </li>
         {% endfor %}
-         </ul>
+        </ul>
     {% else %}
-        ¡Sé el primero en publicar un post!
+        Este blog aún no tiene posts
     {% endif %}
 </body>
 </html>

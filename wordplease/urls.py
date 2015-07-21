@@ -24,5 +24,9 @@ urlpatterns = [
     url(r'^$', 'posts.views.home'),
 
     # Url home va a la vista definida en el paquete blogs.views, método home
-    url(r'^blogs/', 'blogs.views.home')
+    url(r'^blogs/$', 'blogs.views.home'),
+
+    # Capturamos valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
+    url(r'^blogs/(?P<pk>[0-9]+)$', 'blogs.views.detail')
+    #url(r'^blogs/(?P<username>[a-z]+)$', 'blogs.views.detail')
 ]
