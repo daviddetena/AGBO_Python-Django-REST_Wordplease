@@ -23,10 +23,17 @@ urlpatterns = [
     # Url home va a la vista definida en el paquete posts.views, método home
     url(r'^$', 'posts.views.home'),
 
+    # Url posts/ va a la vista definida en el paquete posts.views, método home
+    url(r'^posts/$', 'posts.views.home'),
+
+    # Url detalle post. Capturamos valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
+    url(r'^posts/(?P<pk>[0-9]+)$', 'posts.views.detail'),
+
+
     # Url home va a la vista definida en el paquete blogs.views, método home
     url(r'^blogs/$', 'blogs.views.home'),
 
-    # Capturamos valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
+    # Url detalle blog. Capturamos valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
     url(r'^blogs/(?P<pk>[0-9]+)$', 'blogs.views.detail')
     #url(r'^blogs/(?P<username>[a-z]+)$', 'blogs.views.detail')
 ]

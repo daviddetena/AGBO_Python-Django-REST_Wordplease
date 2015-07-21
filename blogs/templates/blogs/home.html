@@ -36,7 +36,7 @@
         {% for blog in blog_list %}
             <li>
                 <div>
-                    <h4>{{ blog }}</h4>
+                    <h4><a href="{{ blog.pk }}">{{ blog }}</a></h4>
                     <p>Creado el {{ blog.created_at}}</p>
                 </div>
             </li>

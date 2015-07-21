@@ -8,7 +8,7 @@ from blogs.models import Blog
 #                                          fecha publicacion, categorías
 from posts.models import Post
 
-
+# url /blogs/
 def home(request):
     """
     Controlador que se encarga de mostrar contenido en la url /blogs/ de la plataforma
@@ -24,7 +24,7 @@ def home(request):
     # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
     return render(request, 'blogs/home.html', context)
 
-
+# url /blogs/<blog_id>
 def detail(request, pk):
     """
     Controlador para manejar la vista en detalle de un blog. Queremos que se muestren todos los

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.name }}</title>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    {% if post.imageUrl|length > 0 %}
+    <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="500">
+    {% endif %}
+    <h3>{{ post.summary }}</h3>
+    <div>
+        {{ post.body }}
+    </div>
+    <ul>
+        <li><strong>Autor: </strong>{{ post.blog.owner.first_name}} {{ post.blog.owner.last_name}}</li>
+        <li><strong>Publicado: </strong>{{ post.published_at }}</li>
+        <li><strong>Blog: </strong><a href="../blogs/{{ post.blog.pk }}">{{ post.blog.owner }}</a></li>
+        <li>
+            <strong>Categorías: </strong>
+
+        </li>
+    </ul>
+</body>
+</html>
