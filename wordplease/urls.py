@@ -20,6 +20,9 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
+    # Url home va a la vista definida en el paquete posts.views, método home
+    url(r'^$', 'posts.views.home'),
+
     # Url home va a la vista definida en el paquete blogs.views, método home
-    url(r'^$', 'blogs.views.home')
+    url(r'^blogs/', 'blogs.views.home')
 ]
