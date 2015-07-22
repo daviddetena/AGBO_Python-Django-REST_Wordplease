@@ -24,7 +24,7 @@ urlpatterns = [
 
     url(r'^blogs/$', 'blogs.views.home'),                                               # listado blogs plataforma
     url(r'^$', 'posts.views.home'),                                                     # listado posts plataforma
-    url(r'^posts/$', 'posts.views.home'),                                               # listado posts plataforma
+    #url(r'^posts/$', 'posts.views.home'),                                               # listado posts plataforma
     url(r'^blogs/(?P<username>[a-z]+)/$', 'posts.views.user_posts'),                    # listado posts blog usuario
     url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', 'posts.views.detail')   # detalle post usuario
 ]

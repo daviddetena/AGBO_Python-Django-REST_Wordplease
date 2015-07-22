@@ -11,7 +11,7 @@ class Post(models.Model):
     Definimos el modelo Post. Como cada usuario tendrá un único blog en principio, hacemos que el usuario del post sea
     el usuario autenticado.
     """
-    blog = models.ForeignKey(Blog)                                 # El blog es FK. Es un 1-n (1 usuario - n posts)
+    blog = models.ForeignKey(Blog)                                 # El blog es FK. Es un 1-n (1 blog - n posts)
     title = models.CharField(max_length=100)
     summary = models.CharField(max_length=200)
     body = models.TextField()

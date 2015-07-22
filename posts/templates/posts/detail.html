@@ -19,7 +19,11 @@
         <li><strong>Blog: </strong><a href="../{{ post.blog }}">{{ post.blog.owner }}</a></li>
         <li>
             <strong>Categorías: </strong>
-
+            <ul>
+            {% for category in post.categories.all %}
+                <li>{{ category.name }}</li>
+            {% endfor %}
+            </ul>
         </li>
     </ul>
 </body>
