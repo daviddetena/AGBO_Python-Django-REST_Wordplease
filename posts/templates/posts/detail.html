@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ post.name }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ post.name }}
+{% endblock %}
+
+{% block section %}
     <h1>{{ post.title }}</h1>
     {% if post.imageUrl|length > 0 %}
     <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="500">
@@ -16,7 +16,7 @@
     <ul>
         <li><strong>Autor: </strong>{{ post.blog.owner.first_name}} {{ post.blog.owner.last_name}}</li>
         <li><strong>Publicado: </strong>{{ post.published_at }}</li>
-        <li><strong>Blog: </strong><a href="../{{ post.blog }}">{{ post.blog.owner }}</a></li>
+        <li><strong>Blog: </strong><a href="{% url 'blog_posts' post.blog %}">{{ post.blog.owner }}</a></li>
         <li>
             <strong>Categorías: </strong>
             <ul>
@@ -26,5 +26,4 @@
             </ul>
         </li>
     </ul>
-</body>
-</html>
+{% endblock %}

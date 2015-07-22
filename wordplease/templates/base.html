@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+        Bienvenido a Wordplease - Como Wordpress, pero en friki
+        {% endblock %}
+    </title>
+    <style>
+        ul.post-list{
+            list-style: none;
+        }
+        ul.post-list li{
+            float: left;
+            margin: 20px 20px 20px 0;
+        }
+        ul.post-list li:last-child{
+            margin-right: 0;
+        }
+
+        ul.post-list li div{
+            border:2px solid #f8f8f8;
+            padding: 10px;
+            text-align: center;
+            width: 300px;
+        }
+        ul.post-list li div h4{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'post_home' %}">Home</a>
+    </nav>
+    <hr>
+    <section>
+        {% block section %}
+        {% endblock %}
+    </section>
+    <hr>
+    <footer>
+        <small>Wordplease Inc &copy; Todos los derechos reservados</small>
+    </footer>
+</body>
+</html>

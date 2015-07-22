@@ -1,34 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Bienvenido a Wordplease - Como Wordpress, pero en friki</title>
-    <style>
-        ul.post-list{
-            list-style: none;
-        }
-        ul.post-list li{
-            float: left;
-            margin: 20px 20px 20px 0;
-        }
-        ul.post-list li:last-child{
-            margin-right: 0;
-        }
+{% extends 'base.html' %}
 
-        ul.post-list li div{
-            border:2px solid #f8f8f8;
-            padding: 10px;
-            text-align: center;
-        }
-        ul.post-list li div h4{
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <h1>Bienvenido a Wordplease</h1>
-    <p>Wordplease es como Wordpress, pero en friki</p>
+{% block title %}
+    Listado de blogs en Wordplease
+{% endblock %}
 
+{% block section %}
     <!-- Si hay blogs, los listamos -->
     {% if blog_list|length > 0 %}
         <h2>Listado de blogs</h2>
@@ -36,7 +12,7 @@
         {% for blog in blog_list %}
             <li>
                 <div>
-                    <h4><a href="{{ blog.owner.username }}">{{ blog }}</a></h4>
+                    <h4><a href="{% url 'blog_posts' blog.owner.username %}">{{ blog }}</a></h4>
                     <p>Creado el {{ blog.created_at}}</p>
                 </div>
             </li>
@@ -45,5 +21,4 @@
         ¡Sé el primero en crear un blog!
     {% endif %}
     </ul>
-</body>
-</html>
+{% endblock %}

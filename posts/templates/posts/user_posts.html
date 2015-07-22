@@ -1,40 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Detalle de blog</title>
-    <style>
-        ul.post-list{
-            list-style: none;
-        }
-        ul.post-list li{
-            float: left;
-            margin: 20px 20px 20px 0;
-        }
-        ul.post-list li:last-child{
-            margin-right: 0;
-        }
+{% extends 'base.html' %}
 
-        ul.post-list li div{
-            border:2px solid #f8f8f8;
-            padding: 10px;
-            text-align: center;
-            width: 300px;
-        }
-        ul.post-list li div h4{
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <h1>Detalle del blog {{ blog }}</h1>
+{% block title %}
+    Blog {{ post_list.0.blog }}
+{% endblock %}
+
+{% block section %}
+    <h1>Blog <span>{{ post_list.0.blog }}</span></h1>
     {% if post_list|length > 0 %}
-        <h2>Últimos posts publicados</h2>
+        <h3>Últimos posts publicados</h3>
         <ul class="post-list">
         {% for post in post_list %}
             <li>
                 <div>
-                    <h4><a href="../../blogs/{{ post.blog }}/{{ post.pk }}">{{ post.title }}</a></h4>
+                    <h4><a href="{% url 'post_detail' post.blog post.pk %}">{{ post.title }}</a></h4>
                     {% if post.imageUrl|length > 0 %}
                     <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="280">
                     {% endif %}
@@ -45,7 +23,6 @@
         {% endfor %}
         </ul>
     {% else %}
-        Este blog aún no tiene posts
+        <p>Este blog aún no tiene posts</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}
