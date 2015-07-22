@@ -1,4 +1,5 @@
 # -* encoding:utf-8 *-
+from blogs.models import Blog
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from posts.models import Post
@@ -9,7 +10,7 @@ from posts.models import Post
 #url / o /posts/
 def home(request):
     """
-    Controlador que se muestra para el directorio raíz de la plataforma
+    Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
     :param request: Objeto request de la petición
     :return: Objeco HttpResponse con el código html que se entregará al usuario
     """
@@ -26,8 +27,35 @@ def home(request):
     # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
     return render(request, 'posts/home.html', context)
 
-# url /posts/<post_id>
-def detail(request, pk):
+
+# url /blogs/<nombre_usuario>/
+def user_posts(request, username):
+    """
+    Controlador para manejar la vista en detalle de un blog. Queremos que se muestren todos los
+    artículos de ese blog
+    :param request: Objeto request con la petición
+    :param pk: Parámetro pk con el identificador del blog cuyo detalle se mostrará
+    :return: render que cargará la vista de detalle del blog (por debajo, crea un HttpResponse)
+    """
+
+    # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
+    possible_blogs = Blog.objects.filter(owner__username=username).order_by('-created_at')
+    blog = possible_blogs[0] if len(possible_blogs) >=1 else None
+
+    if blog is not None:
+        # Recuperar posts de ese blog
+        posts = Post.objects.filter(blog__owner__username=username).order_by('-created_at')
+        context = {
+            "post_list": posts
+        }
+        return render(request, 'posts/user_posts.html', context)
+    else:
+        # 404 - blog no encontrado
+        return HttpResponseNotFound('No existe el blog')
+
+
+# url /blogs/<nombre_usuario>/<post_id>
+def detail(request, username, post_id):
     """
     Controlador para manejar la vista detalle de un post.
     :param request: Objeto request con la petición
@@ -35,17 +63,29 @@ def detail(request, pk):
     :return: render que cargará la vista de detalle del post (por debajo, crea un HttpResponse)
     """
 
-    possible_posts = Post.objects.filter(pk=pk)
-    post = possible_posts[0] if len(possible_posts) >=1 else None
+    # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
+    possible_blogs = Blog.objects.filter(owner__username=username)
+    blog = possible_blogs[0] if len(possible_blogs) >=1 else None
 
-    if post is not None:
-        # cargamos plantilla detalle de post y categorias
-        context = {
-            "post": post
-        }
+    if blog is not None:
+        # Recuperar post de ese blog
+        possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id)
+        post = possible_posts[0] if len(possible_posts) >=1 else None
 
-        # cargamos template con los datos del contexto
-        return render(request, 'posts/detail.html', context)
+        if post is not None:
+            # Contexto con post a mostrar
+            context = {
+                "post": post
+            }
+
+            # cargamos template con los datos del contexto, que incluye el post a mostrar
+            return render(request, 'posts/detail.html', context)
+        else:
+            # error 404 - post no encontrado
+            return HttpResponseNotFound('No existe el post')
     else:
-        # error 404
-        return HttpResponseNotFound('No existe el post')
+        # error 404 - blog no encontrado
+        return HttpResponseNotFound('No existe el blog')
+
+
+

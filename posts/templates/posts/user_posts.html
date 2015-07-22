@@ -34,7 +34,7 @@
         {% for post in post_list %}
             <li>
                 <div>
-                    <h4><a href="../posts/{{ post.pk }}">{{ post.title }}</a></h4>
+                    <h4><a href="../../blogs/{{ post.blog }}/{{ post.pk }}">{{ post.title }}</a></h4>
                     {% if post.imageUrl|length > 0 %}
                     <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="280">
                     {% endif %}

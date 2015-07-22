@@ -16,7 +16,7 @@
     <ul>
         <li><strong>Autor: </strong>{{ post.blog.owner.first_name}} {{ post.blog.owner.last_name}}</li>
         <li><strong>Publicado: </strong>{{ post.published_at }}</li>
-        <li><strong>Blog: </strong><a href="../blogs/{{ post.blog.pk }}">{{ post.blog.owner }}</a></li>
+        <li><strong>Blog: </strong><a href="../{{ post.blog }}">{{ post.blog.owner }}</a></li>
         <li>
             <strong>Categorías: </strong>
 
