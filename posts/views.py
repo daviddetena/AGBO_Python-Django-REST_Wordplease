@@ -12,7 +12,7 @@ def home(request):
     """
     Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
     :param request: Objeto request de la petición
-    :return: Objeco HttpResponse con el código html que se entregará al usuario
+    :return: Objeto HttpResponse con el código html que se entregará al usuario
     """
     # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
     posts = Post.objects.all().order_by('-created_at')

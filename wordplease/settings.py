@@ -41,7 +41,8 @@ INSTALLED_APPS = (
     'blogs',
     'posts',
     'categories',
-    'wordplease'
+    'wordplease',
+    'users'
 )
 
 MIDDLEWARE_CLASSES = (

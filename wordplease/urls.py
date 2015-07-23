@@ -25,7 +25,9 @@ urlpatterns = [
     url(r'^blogs/$', 'blogs.views.home', name='blog_home'),     # listado blogs plataforma
     url(r'^$', 'posts.views.home', name='post_home'),           # listado posts plataforma
     url(r'^blogs/(?P<username>[a-z]+)/$', 'posts.views.user_posts', name='blog_posts'),     # listado posts blog usuario
-    url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', 'posts.views.detail', name='post_detail')   # detalle post
+    url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', 'posts.views.detail', name='post_detail'),   # detalle post
+    url(r'^login$', 'users.views.login', name='user_login'),
+    url(r'^logout$', 'users.views.logout', name='user_logout')
 
     #url(r'^.*$', '', name='url_not_found')                     # controlador para redirección a home
 ]

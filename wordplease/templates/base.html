@@ -33,6 +33,12 @@
 <body>
     <nav>
         <a href="{% url 'post_home' %}">Home</a>
+        |
+        {% if user.is_authenticated %}
+            <a href="{% url 'user_logout' %}">Salir</a>
+        {% else %}
+            <a href="{% url 'user_login' %}">Entrar</a>
+        {% endif %}
     </nav>
     <hr>
     <section>
