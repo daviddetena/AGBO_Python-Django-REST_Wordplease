@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login as django_login, logout as django_logout, authenticate
 
 # url /login/
+from users.forms import LoginForm
+
+
 def login(request):
     """
     Controlador para el login de usuario
@@ -13,29 +16,41 @@ def login(request):
     error_messages = []
 
     if request.method == "POST":
-        # Recuperar nombre de usuario y password del formulario
-        username = request.POST.get('usr')
-        password = request.POST.get('pwd')
 
-        # Con este método authenticate, Django automáticamente comprueba la autenticación del usuario,
-        # haciendo las operaciones necesarias con la contraseña
-        user = authenticate(username=username, password=password)
+        # Crearemos un Django Form para presentarlo en la plantilla
+        # Todos los valores del formulario se inicializan con los valores que vienen en el POST
+        form = LoginForm(request.POST)
 
-        if user is None:
-            error_messages.append('Nombre de usuario o contraseña incorrectos')
-        else:
-            # El usuario debe estar activo
-            if user.is_active:
-                # Autenticamos
-                django_login(request, user)
-                # Redirigir al home
-                return redirect('post_home')
+        # Si el formulario es válido, recuperamos datos
+        if form.is_valid():
+
+            # Recuperamos datos de formulario limpiados
+            username = form.cleaned_data.get('usr')
+            password = form.cleaned_data.get('pwd')
+
+            # Con este método authenticate, Django automáticamente comprueba la autenticación del usuario,
+            # haciendo las operaciones necesarias con la contraseña
+            user = authenticate(username=username, password=password)
+
+            if user is None:
+                error_messages.append('Nombre de usuario o contraseña incorrectos')
             else:
-                error_messages.append('El usuario no está activo')
+                # El usuario debe estar activo
+                if user.is_active:
+                    # Autenticamos
+                    django_login(request, user)
+                    # Redirigir al home
+                    return redirect('post_home')
+                else:
+                    error_messages.append('El usuario no está activo')
+    else:
+        # GET, no existe. Form vacío
+        form = LoginForm()
 
     # Creamos contexto con los mensajes de error
     context = {
-        'errors': error_messages
+        'errors': error_messages,
+        'login_form': form
     }
 
     # Mandamos respuesta con error a través de la plantilla
