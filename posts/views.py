@@ -1,7 +1,9 @@
 # -* encoding:utf-8 *-
 from blogs.models import Blog
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
+from posts.forms import PostForm
 from posts.models import Post
 
 # TODO: crear las siguientes views-templates:
@@ -87,5 +89,38 @@ def detail(request, username, post_id):
         # error 404 - blog no encontrado
         return HttpResponseNotFound('No existe el blog')
 
+# url /new_post
+def create(request):
+    """
+    Muestra un formulario para crear un post y la crea si la petición es POST
+    :param request: Objeto HttpRequest con la petición
+    :return: HttpResponse
+    """
+    success_message = ''
+    if request.method == 'GET':
+        # Formulario vacío si viene por GET
+        form = PostForm()
+    else:
+        # Todos los valores del formulario se inicializan con los valores que vienen en el POST
+        form = PostForm(request.POST)
+        if form.is_valid():
+            # Si se valida correctamente creamos objeto post, lo guardamos en DB y lo devolvemos
+            new_post = form.save()
 
-
+            # Reiniciamos formulario y componemos mensaje con enlace al nuevo post creado. Para acceder a una url
+            # nombrada en un controlador utilizamos la función reverse, con los argumentos de la url nombrada, en este
+            # caso, el nombre del blog, y la pk del post.
+            # Como por defecto Django escapa el HTML, necesitamos indicar que el enlace al nuevo post no escape HTML.
+            # Lo indicamos en la plantilla con el | safe en el mensaje
+            form = PostForm()
+            success_message = '¡Post creado con éxito!  '
+            success_message += '<a href="{0}">'.format(reverse('post_detail', args=[new_post.blog, new_post.pk]))
+            success_message += 'Ver post'
+            success_message += '</a>'
+    context = {
+        'form': form,
+        'success_message': success_message
+    }
+    # Cargamos template con los datos del contexto, que incluye el formulario basado en modelo
+    # En el template podemos incluir cada campo como <p>, <tr> de table o <li> de <ul>
+    return render(request, 'posts/new_post.html', context)
