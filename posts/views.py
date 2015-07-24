@@ -5,6 +5,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from posts.forms import PostForm
 from posts.models import Post
+from django.contrib.auth.decorators import login_required
 
 # TODO: crear las siguientes views-templates:
 # /new_post           => Formulario nuevo post. Autenticación requerida. Usuario a partir de autenticación.
@@ -90,9 +91,14 @@ def detail(request, username, post_id):
         return HttpResponseNotFound('No existe el blog')
 
 # url /new_post
+@login_required()
 def create(request):
     """
-    Muestra un formulario para crear un post y la crea si la petición es POST
+    Muestra un formulario para crear un post y la crea si la petición es POST. Con el decorador @login_required()
+    nos va a ejecutar esta función solamente en el caso de que el usuario esté autenticado. En caso contrario,
+    redirigirá a una url del paquete django.contrib.auth que redefinimos en el settings.py LOGIN_URL. Esta es la
+    magia que hace Django para redireccionar al usuario a una url en el caso de que intente acceder a una url
+    protegida sólo accesible si está autenticado.
     :param request: Objeto HttpRequest con la petición
     :return: HttpResponse
     """
@@ -111,7 +117,8 @@ def create(request):
             # nombrada en un controlador utilizamos la función reverse, con los argumentos de la url nombrada, en este
             # caso, el nombre del blog, y la pk del post.
             # Como por defecto Django escapa el HTML, necesitamos indicar que el enlace al nuevo post no escape HTML.
-            # Lo indicamos en la plantilla con el | safe en el mensaje
+            # Lo indicamos en la plantilla con el | safe en el mensaje. Lo normal es que este trabajo se haga en el
+            # template
             form = PostForm()
             success_message = '¡Post creado con éxito!  '
             success_message += '<a href="{0}">'.format(reverse('post_detail', args=[new_post.blog, new_post.pk]))

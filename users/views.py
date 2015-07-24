@@ -39,8 +39,10 @@ def login(request):
                 if user.is_active:
                     # Autenticamos
                     django_login(request, user)
-                    # Redirigir al home
-                    return redirect('post_home')
+
+                    # Al autenticar, redirigir a la url que se indique en el parámetro next, o al home si no existe next
+                    url = request.GET.get('next', 'post_home')
+                    return redirect(url)
                 else:
                     error_messages.append('El usuario no está activo')
     else:
