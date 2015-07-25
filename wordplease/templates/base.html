@@ -38,8 +38,10 @@
             <a href="{% url 'post_create' %}">Crear post</a>
             |
             <a href="{% url 'post_list' %}">Mis posts</a>
-            |
-            <a href="{% url 'user_logout' %}">Salir</a>
+
+
+            <a style="float: right;" href="{% url 'user_logout' %}">Salir</a>
+            <span style="float: right; margin-right: 10px">¡Hola, <strong>{{ user.first_name }} {{ user.last_name }}</strong>! </span>
         {% else %}
             <a href="{% url 'user_login' %}">Entrar</a>
         {% endif %}

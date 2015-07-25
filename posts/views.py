@@ -1,7 +1,7 @@
 # -* encoding:utf-8 *-
 from blogs.models import Blog
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
 from posts.forms import PostForm
 from posts.models import Post
@@ -25,13 +25,13 @@ class HomeView(View):
         """
         # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
         # Obtenemos todos los post publicados
-        posts = Post.objects.all().order_by('-created_at')
+        posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
 
         # El context es lo que se le pasará al template, siendo las claves del diccionario accesibles desde ellas
         context = {
             # No carga en memoria todos los objetos, sino los 5 primeros. Aquí pondría el LIMIT X de SQL
             # Sólo en el momento en que la variable va a ser utilizada es traído de la DB
-            "post_list": posts[:5]
+            "post_list": posts
         }
 
         # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
@@ -56,10 +56,20 @@ class UserPostsView(View):
 
         if blog is not None:
             # Recuperar posts de ese blog
-            posts = Post.objects.filter(blog__owner__username=username).order_by('-created_at')
+
+            if request.user.is_authenticated():
+                # Usuario autenticado. Admin y propietario ven todos, publicados o no. No propietario, sólo publicados
+                if blog.owner == request.user or request.user.is_superuser:
+                    posts = Post.objects.filter(blog=blog).order_by('-created_at')
+                else:
+                    posts = Post.objects.filter(blog=blog, published_at__isnull=False).order_by('-published_at')
+            else:
+                posts = Post.objects.filter(blog=blog, published_at__isnull=False).order_by('-published_at')
+
             context = {
                 "post_list": posts
             }
+
             return render(request, 'posts/user_posts.html', context)
         else:
             # 404 - blog no encontrado
@@ -86,14 +96,34 @@ class DetailView(View):
         if blog is not None:
             # Recuperar post de ese blog. Nos traemos también su campo relacionado de blog (FK), para que los
             # haga en un único query. Prefetch_related para 1-n (1 post-n categorías)
+
             possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id).select_related('blog')
-            post = possible_posts[0] if len(possible_posts) >=1 else None
+            post = possible_posts[0] if len(possible_posts) ==1 else None
 
             if post is not None:
-                # Contexto con post a mostrar
-                context = {
-                    "post": post
-                }
+
+                if request.user.is_authenticated():
+                    # Usuario autenticado. Admin y propietario pueden verlo
+                    if blog.owner == request.user or request.user.is_superuser:
+                        context = {
+                            "post": post
+                        }
+                    else:
+                        if post.published_at is not None:
+                            context = {
+                                "post": post
+                            }
+                        else:
+                            # error 403 - Acceso denegado
+                            return HttpResponseForbidden('Acceso denegado')
+                else:
+                    if post.published_at is not None:
+                        context = {
+                            "post": post
+                        }
+                    else:
+                        # error 403 - Acceso denegado
+                        return HttpResponseForbidden('Acceso denegado')
 
                 # cargamos template con los datos del contexto, que incluye el post a mostrar
                 return render(request, 'posts/detail.html', context)
@@ -185,6 +215,7 @@ class CreateView(View):
         """
         return render(request, 'posts/new_post.html', context)
 
+
 # url /posts/
 class ListView(View):
     """
@@ -192,20 +223,22 @@ class ListView(View):
     """
     def get(self, request):
         """
-        Devuelve:
-        - Todos los posts si el usuario no está autenticado.
-        - Posts del usuario si está autenticado.
+        Devuelve igual que blogs/:
+        - Si el usuario está autenticado o es administrador, todos los post del usuario autenticado, publicados o no.
+        - Posts publicados del usuario, si no se está autenticado.
         Más recientes primero
         :param request: HttpRequest
         :return: render que genera el HttpResponse con el context y el template indicados
         """
-
-        if request.user.is_authenticated():
+        if request.user.is_authenticated() or request.user.is_superuser:
+            # Usuario autenticado. Ve todos sus posts, publicados o no
             posts = Post.objects.filter(blog=request.user.blog).order_by('-created_at')
         else:
-            posts = Post.objects.all().order_by('-created_at')
+            # Usuarios no autenticados - Sólo posts públicos
+            posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
 
         context = {
-            'post_list': posts
+            "post_list": posts
         }
+
         return render(request, 'posts/post_list.html', context)

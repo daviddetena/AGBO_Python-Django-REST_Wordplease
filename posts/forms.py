@@ -17,7 +17,7 @@ class PostForm(forms.ModelForm):
         """
         # Formulario para el modelo Post
         model = Post
-        exclude = ['blog']        # excluimos el blog, ya que queremos que lo coja del usuario autenticado
+        exclude = ['blog','published_at']        # excluimos el blog, ya que queremos que lo coja del usuario autenticado
 
     def clean(self):
         """

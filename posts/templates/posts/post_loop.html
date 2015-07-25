@@ -8,7 +8,12 @@
             <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="280">
             {% endif %}
             <p>{{ post.summary }}</p>
-            <p>{{ post.published_at}}</p>
+
+            {% if post.published_at %}
+            <p>Publicado el {{ post.published_at}}</p>
+            {% else %}
+            <p>Creado el {{ post.created_at}}</p>
+            {% endif %}
         </div>
     </li>
 {% endfor %}
