@@ -6,29 +6,34 @@ from django.shortcuts import render
 from posts.forms import PostForm
 from posts.models import Post
 from django.contrib.auth.decorators import login_required
+from django.views.generic import View
 
-# TODO: crear las siguientes views-templates:
-# /new_post           => Formulario nuevo post. Autenticación requerida. Usuario a partir de autenticación.
 
-#url / o /posts/
-def home(request):
+# Convertimos nuestras vistas basadas en métodos en vistas basadas en clases.
+class HomeView(View):
     """
-    Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
-    :param request: Objeto request de la petición
-    :return: Objeto HttpResponse con el código html que se entregará al usuario
+
     """
-    # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
-    posts = Post.objects.all().order_by('-created_at')
 
-    # El context es lo que se le pasará al template, siendo las claves del diccionario accesibles desde ellas
-    context = {
-        # No carga en memoria todos los objetos, sino los 5 primeros. Aquí pondría el LIMIT X de SQL
-        # Sólo en el momento en que la variable va a ser utilizada es traído de la DB
-        "post_list": posts[:5]
-    }
+    #url / o /posts/
+    def get(self, request):
+        """
+        Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
+        :param request: Objeto request de la petición
+        :return: Objeto HttpResponse con el código html que se entregará al usuario
+        """
+        # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
+        posts = Post.objects.all().order_by('-created_at')
 
-    # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
-    return render(request, 'posts/home.html', context)
+        # El context es lo que se le pasará al template, siendo las claves del diccionario accesibles desde ellas
+        context = {
+            # No carga en memoria todos los objetos, sino los 5 primeros. Aquí pondría el LIMIT X de SQL
+            # Sólo en el momento en que la variable va a ser utilizada es traído de la DB
+            "post_list": posts[:5]
+        }
+
+        # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
+        return render(request, 'posts/home.html', context)
 
 
 # url /blogs/<nombre_usuario>/

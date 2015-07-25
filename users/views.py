@@ -1,21 +1,46 @@
 # -* encoding:utf-8 *-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as django_login, logout as django_logout, authenticate
-
 # url /login/
 from users.forms import LoginForm
+# Para vistas basadas en clases
+from django.views.generic import View
 
 
-def login(request):
+class LoginView(View):
     """
-    Controlador para el login de usuario
-    :param request: Objeto request de la petición
-    :return: HttpResponse con el código html que se entregará al usuario
+    Vista basada en clase para el login. Tendremos que definir los métodos del HTTP get y post
     """
-    # Mensajes de error al autenticar
-    error_messages = []
 
-    if request.method == "POST":
+    def get(self, request):
+        """
+        Método para cuando el login viene del método HTTP get
+        :param request: HttpRequest
+        :return: render que contruye un HttpResponse con el template indicado
+        """
+        # Mensajes de error al autenticar
+        error_messages = []
+
+        form = LoginForm()
+
+        # Creamos contexto con los mensajes de error
+        context = {
+            'errors': error_messages,
+            'login_form': form
+        }
+
+        # Mandamos respuesta con error a través de la plantilla
+        return render(request, 'users/login.html', context)
+
+    def post(self, request):
+        """
+        Método para cuando el login viene del método HTTP get
+        :param request: HttpRquest
+        :return: render que contruye un HttpResponse con el template indicado
+        """
+
+        # Mensajes de error al autenticar
+        error_messages = []
 
         # Crearemos un Django Form para presentarlo en la plantilla
         # Todos los valores del formulario se inicializan con los valores que vienen en el POST
@@ -45,19 +70,15 @@ def login(request):
                     return redirect(url)
                 else:
                     error_messages.append('El usuario no está activo')
-    else:
-        # GET, no existe. Form vacío
-        form = LoginForm()
 
-    # Creamos contexto con los mensajes de error
-    context = {
-        'errors': error_messages,
-        'login_form': form
-    }
+        # Creamos contexto con los mensajes de error
+        context = {
+            'errors': error_messages,
+            'login_form': form
+        }
 
-    # Mandamos respuesta con error a través de la plantilla
-    return render(request, 'users/login.html', context)
-
+        # Mandamos respuesta con error a través de la plantilla
+        return render(request, 'users/login.html', context)
 
 # url /logout/
 def logout(request):

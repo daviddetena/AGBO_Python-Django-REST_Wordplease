@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from posts.views import HomeView
+from users.views import LoginView
 
 urlpatterns = [
     # (?P<pk>[0-9]+) => valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
@@ -23,11 +25,11 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     # urls nombradas
-    url(r'^blogs/$', 'blogs.views.home', name='blog_home'),     # listado blogs plataforma
-    url(r'^$', 'posts.views.home', name='post_home'),           # listado posts plataforma
+    url(r'^blogs/$', 'blogs.views.home', name='blog_home'),     # listado de blogs
+    url(r'^$', HomeView.as_view(), name='post_home'),           # home, con vista basada en clase HomeView
     url(r'^blogs/(?P<username>[a-z]+)/$', 'posts.views.user_posts', name='blog_posts'),     # listado posts blog usuario
     url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', 'posts.views.detail', name='post_detail'),   # detalle post
-    url(r'^login$', 'users.views.login', name='user_login'),
+    url(r'^login$', LoginView.as_view(), name='user_login'),    # login, con vista basada en clase LoginView
     url(r'^logout$', 'users.views.logout', name='user_logout'),
 
     url(r'^new-post/$', 'posts.views.create', name='post_create')
