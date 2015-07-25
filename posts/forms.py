@@ -1,6 +1,9 @@
 #-*- coding: utf-8 -*-
 from django import forms
+from django.core.exceptions import ValidationError
 from posts.models import Post
+from posts.settings import BADWORDS
+
 
 class PostForm(forms.ModelForm):
     """
@@ -14,4 +17,26 @@ class PostForm(forms.ModelForm):
         """
         # Formulario para el modelo Post
         model = Post
-        exclude = []        # campos que el formulario no mostrará
+        exclude = ['blog']        # excluimos el blog, ya que queremos que lo coja del usuario autenticado
+
+    def clean(self):
+        """
+        Valida si en la descripción del post se han puesto tacos definidos en settings.BADWORDS
+        :return: diccionario con los atributos del formulario si OK
+        """
+        cleaned_data = super(PostForm, self).clean()    # clase padre limpia campos
+        # obtenemos summary y body o cadenas vacías
+        summary = cleaned_data.get('summary', '')
+        body = cleaned_data.get('body', '')
+
+        # recorremos la lista de palabras prohibidas y si en el campo summary y body del formulario se encuentra alguna de ellas, lanzamos excepción. Esta excepción hará que se muestre el correspondiente mensaje de error en la pantalla
+        for badword in BADWORDS:
+
+            if badword.lower() in summary.lower():
+                raise ValidationError(u'La palabra {0} no está permitida'.format(badword))
+
+            if badword.lower() in body.lower():
+                raise ValidationError(u'La palabra {0} no está permitida'.format(badword))
+
+        # Si la cosa va bien, devuelvo los datos limpios/normalizados
+        return cleaned_data

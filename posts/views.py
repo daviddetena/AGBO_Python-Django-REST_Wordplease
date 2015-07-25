@@ -71,8 +71,9 @@ def detail(request, username, post_id):
     blog = possible_blogs[0] if len(possible_blogs) >=1 else None
 
     if blog is not None:
-        # Recuperar post de ese blog
-        possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id)
+        # Recuperar post de ese blog. Nos traemos también su campo relacionado de blog (FK), para que los
+        # haga en un único query. Prefetch_related para 1-n (1 post-n categorías)
+        possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id).select_related('blog')
         post = possible_posts[0] if len(possible_posts) >=1 else None
 
         if post is not None:
@@ -107,10 +108,19 @@ def create(request):
         # Formulario vacío si viene por GET
         form = PostForm()
     else:
-        # Todos los valores del formulario se inicializan con los valores que vienen en el POST
-        form = PostForm(request.POST)
+
+        # Creo un post vacío y le asigno el blog actual.
+        post_with_blog = Post()
+        post_with_blog.blog = request.user.blog
+
+        # Le pedimos al formulario que en vez de usar la instancia que él crea, utilice la que le
+        # indicamos con el post_with_blog. Con esto, guarda la instancia con todos los campos del
+        # formulario, excepto del blog, que coge el que le indicamos nosotros que ha sido creado.
+        form = PostForm(request.POST, instance=post_with_blog)
+
         if form.is_valid():
             # Si se valida correctamente creamos objeto post, lo guardamos en DB y lo devolvemos
+            # Obtenemos el blog del usuario autenticado para guardarlo automáticamente.
             new_post = form.save()
 
             # Reiniciamos formulario y componemos mensaje con enlace al nuevo post creado. Para acceder a una url

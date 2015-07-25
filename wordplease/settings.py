@@ -127,3 +127,6 @@ LOGGING = {
 
 # LOGIN URL
 LOGIN_URL = '/login'    # cuando un usuario no esté autenticado, redirige a /login
+
+# BADWORDS http://goo.gl/G2nCu7
+PROJECT_BADWORDS = [u'maricon', u'hijoputa',  u'hijo de puta', u'puta', u'puton', u'maricona', u'gilipollas', u'soplapollas', u'cabron', u'cabrón', u'maricón', u'putón']
