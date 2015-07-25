@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 
 # Convertimos nuestras vistas basadas en métodos en vistas basadas en clases.
 
-#url / o /posts/
+#url /
 class HomeView(View):
     """
     Vista basada en clase para el home. Tendremos que definir los métodos del HTTP get y post. En este caso, es sólo por GET
@@ -24,6 +24,7 @@ class HomeView(View):
         :return: Objeto HttpResponse con el código html que se entregará al usuario
         """
         # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
+        # Obtenemos todos los post publicados
         posts = Post.objects.all().order_by('-created_at')
 
         # El context es lo que se le pasará al template, siendo las claves del diccionario accesibles desde ellas
@@ -104,7 +105,7 @@ class DetailView(View):
             return HttpResponseNotFound('No existe el blog')
 
 
-# url /new_post
+# url /new_post/
 class CreateView(View):
     """
     Vista basada en clase para el la creación de post. Tendremos que definir los métodos del HTTP get y post.
@@ -183,3 +184,28 @@ class CreateView(View):
         :return: render que genera el HttpResponse con el context y el template indicados
         """
         return render(request, 'posts/new_post.html', context)
+
+# url /posts/
+class ListView(View):
+    """
+    Vista basada en clase para listado de post. Sólo tendremos peticiones por GET.
+    """
+    def get(self, request):
+        """
+        Devuelve:
+        - Todos los posts si el usuario no está autenticado.
+        - Posts del usuario si está autenticado.
+        Más recientes primero
+        :param request: HttpRequest
+        :return: render que genera el HttpResponse con el context y el template indicados
+        """
+
+        if request.user.is_authenticated():
+            posts = Post.objects.filter(blog=request.user.blog).order_by('-created_at')
+        else:
+            posts = Post.objects.all().order_by('-created_at')
+
+        context = {
+            'post_list': posts
+        }
+        return render(request, 'posts/post_list.html', context)

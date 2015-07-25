@@ -6,23 +6,7 @@
     <p>Wordplease es como Wordpress, pero en friki</p>
 
     {% if post_list|length > 0 %}
-        <h2>Últimos posts publicados</h2>
-        <div>
-            <ul class="post-list">
-            {% for post in post_list %}
-                <li>
-                    <div>
-                        <h4><a href="{% url 'post_detail' post.blog post.pk %}">{{ post.title }}</a></h4>
-                        {% if post.imageUrl|length > 0 %}
-                        <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="280">
-                        {% endif %}
-                        <p>{{ post.summary }}</p>
-                        <p>{{ post.published_at}}</p>
-                    </div>
-                </li>
-            {% endfor %}
-             </ul>
-        </div>
+        {% include 'posts/post_loop.html' %}
     {% else %}
         <p>¡Sé el primero en publicar un post!</p>
     {% endif %}

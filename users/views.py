@@ -66,8 +66,8 @@ class LoginView(View):
                     # Autenticamos
                     django_login(request, user)
 
-                    # Al autenticar, redirigir a la url que se indique en el parámetro next, o al home si no existe next
-                    url = request.GET.get('next', 'post_home')
+                    # Al autenticar, redirigir a la url que se indique en el parámetro next, o a los post del usuario autenticado
+                    url = request.GET.get('next', 'post_list')
                     return redirect(url)
                 else:
                     error_messages.append('El usuario no está activo')

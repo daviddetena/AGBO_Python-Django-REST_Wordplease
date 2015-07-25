@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from posts.views import HomeView, UserPostsView, DetailView, CreateView
+from posts.views import HomeView, UserPostsView, DetailView, CreateView, ListView
 from users.views import LoginView, LogoutView
 from blogs.views import BlogsView
 
@@ -26,8 +26,9 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     # urls nombradas
-    url(r'^blogs/$', BlogsView.as_view(), name='blog_home'),     # listado de blogs, con vista basada en clase BlogsView
-    url(r'^$', HomeView.as_view(), name='post_home'),           # home, con vista basada en clase HomeView
+    url(r'^blogs/$', BlogsView.as_view(), name='blog_home'),    # listado de blogs, con vista basada en clase BlogsView
+    url(r'^$', HomeView.as_view(), name='post_home'),           # listado de posts, con vista basada en clase HomeView
+    url(r'^posts/$', ListView.as_view(), name='post_list'),    # post de usuario autenticado/todos los posts, basada en clase PostUserView
     url(r'^blogs/(?P<username>[a-z]+)/$', UserPostsView.as_view(), name='blog_posts'),     # listado posts blog usuario, basada en la clase UserPostView
     url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', DetailView.as_view(), name='post_detail'),   # detalle post, basado en clase DetailView
     url(r'^login$', LoginView.as_view(), name='user_login'),    # login, con vista basada en clase LoginView

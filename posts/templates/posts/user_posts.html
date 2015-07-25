@@ -7,21 +7,7 @@
 {% block section %}
     <h1>Blog <span>{{ post_list.0.blog }}</span></h1>
     {% if post_list|length > 0 %}
-        <h3>Últimos posts publicados</h3>
-        <ul class="post-list">
-        {% for post in post_list %}
-            <li>
-                <div>
-                    <h4><a href="{% url 'post_detail' post.blog post.pk %}">{{ post.title }}</a></h4>
-                    {% if post.imageUrl|length > 0 %}
-                    <img src="{{ post.imageUrl }}" alt="{{ post.title }}" width="280">
-                    {% endif %}
-                    <p>{{ post.summary }}</p>
-                    <p>{{ post.published_at}}</p>
-                </div>
-            </li>
-        {% endfor %}
-        </ul>
+        {% include 'posts/post_loop.html' %}
     {% else %}
         <p>Este blog aún no tiene posts</p>
     {% endif %}
