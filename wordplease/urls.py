@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from posts.views import HomeView
-from users.views import LoginView
+from posts.views import HomeView, UserPostsView, DetailView, CreateView
+from users.views import LoginView, LogoutView
+from blogs.views import BlogsView
 
 urlpatterns = [
     # (?P<pk>[0-9]+) => valor en parámetro pk (?P<pk>), que será 1 o más números del 0 al 9
@@ -25,13 +26,13 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     # urls nombradas
-    url(r'^blogs/$', 'blogs.views.home', name='blog_home'),     # listado de blogs
+    url(r'^blogs/$', BlogsView.as_view(), name='blog_home'),     # listado de blogs, con vista basada en clase BlogsView
     url(r'^$', HomeView.as_view(), name='post_home'),           # home, con vista basada en clase HomeView
-    url(r'^blogs/(?P<username>[a-z]+)/$', 'posts.views.user_posts', name='blog_posts'),     # listado posts blog usuario
-    url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', 'posts.views.detail', name='post_detail'),   # detalle post
+    url(r'^blogs/(?P<username>[a-z]+)/$', UserPostsView.as_view(), name='blog_posts'),     # listado posts blog usuario, basada en la clase UserPostView
+    url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', DetailView.as_view(), name='post_detail'),   # detalle post, basado en clase DetailView
     url(r'^login$', LoginView.as_view(), name='user_login'),    # login, con vista basada en clase LoginView
-    url(r'^logout$', 'users.views.logout', name='user_logout'),
+    url(r'^logout$', LogoutView.as_view(), name='user_logout'), # logout, con vista basada en clase LogoutView
 
-    url(r'^new-post/$', 'posts.views.create', name='post_create')
+    url(r'^new-post/$', CreateView.as_view(), name='post_create')   # creación nuevo post, con vista basada en clase CreateView
     #url(r'^.*$', '', name='url_not_found')                     # controlador para redirección a home
 ]

@@ -7,15 +7,16 @@ from posts.forms import PostForm
 from posts.models import Post
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
+from django.utils.decorators import method_decorator
 
 
 # Convertimos nuestras vistas basadas en métodos en vistas basadas en clases.
+
+#url / o /posts/
 class HomeView(View):
     """
-
+    Vista basada en clase para el home. Tendremos que definir los métodos del HTTP get y post. En este caso, es sólo por GET
     """
-
-    #url / o /posts/
     def get(self, request):
         """
         Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
@@ -37,82 +38,108 @@ class HomeView(View):
 
 
 # url /blogs/<nombre_usuario>/
-def user_posts(request, username):
-    """
-    Controlador para manejar la vista en detalle de un blog. Queremos que se muestren todos los
-    artículos de ese blog
-    :param request: Objeto request con la petición
-    :param pk: Parámetro pk con el identificador del blog cuyo detalle se mostrará
-    :return: render que cargará la vista de detalle del blog (por debajo, crea un HttpResponse)
-    """
+class UserPostsView(View):
 
-    # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
-    possible_blogs = Blog.objects.filter(owner__username=username).order_by('-created_at')
-    blog = possible_blogs[0] if len(possible_blogs) >=1 else None
+    def get(self, request, username):
+        """
+        Método para manejar la vista en detalle de un blog. Queremos que se muestren todos los
+        artículos de ese blog
+        :param request: Objeto request con la petición
+        :param pk: Parámetro pk con el identificador del blog cuyo detalle se mostrará
+        :return: render que cargará la vista de detalle del blog (por debajo, crea un HttpResponse)
+        """
 
-    if blog is not None:
-        # Recuperar posts de ese blog
-        posts = Post.objects.filter(blog__owner__username=username).order_by('-created_at')
-        context = {
-            "post_list": posts
-        }
-        return render(request, 'posts/user_posts.html', context)
-    else:
-        # 404 - blog no encontrado
-        return HttpResponseNotFound('No existe el blog')
+        # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
+        possible_blogs = Blog.objects.filter(owner__username=username).order_by('-created_at')
+        blog = possible_blogs[0] if len(possible_blogs) >=1 else None
+
+        if blog is not None:
+            # Recuperar posts de ese blog
+            posts = Post.objects.filter(blog__owner__username=username).order_by('-created_at')
+            context = {
+                "post_list": posts
+            }
+            return render(request, 'posts/user_posts.html', context)
+        else:
+            # 404 - blog no encontrado
+            return HttpResponseNotFound('No existe el blog')
 
 
 # url /blogs/<nombre_usuario>/<post_id>
-def detail(request, username, post_id):
+class DetailView(View):
     """
-    Controlador para manejar la vista detalle de un post.
-    :param request: Objeto request con la petición
-    :param pk: Parámetro pk con el identificador del blog cuyo detalle se mostrará
-    :return: render que cargará la vista de detalle del post (por debajo, crea un HttpResponse)
+    Vista basada en clase para el detalle de post. Tendremos que definir los métodos del HTTP get y post. En este caso, es sólo por GET
     """
+    def get(self, request, username, post_id):
+        """
+        Método para manejar la vista detalle de un post.
+        :param request: Objeto request con la petición
+        :param pk: Parámetro pk con el identificador del blog cuyo detalle se mostrará
+        :return: render que cargará la vista de detalle del post (por debajo, crea un HttpResponse)
+        """
 
-    # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
-    possible_blogs = Blog.objects.filter(owner__username=username)
-    blog = possible_blogs[0] if len(possible_blogs) >=1 else None
+        # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
+        possible_blogs = Blog.objects.filter(owner__username=username)
+        blog = possible_blogs[0] if len(possible_blogs) >=1 else None
 
-    if blog is not None:
-        # Recuperar post de ese blog. Nos traemos también su campo relacionado de blog (FK), para que los
-        # haga en un único query. Prefetch_related para 1-n (1 post-n categorías)
-        possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id).select_related('blog')
-        post = possible_posts[0] if len(possible_posts) >=1 else None
+        if blog is not None:
+            # Recuperar post de ese blog. Nos traemos también su campo relacionado de blog (FK), para que los
+            # haga en un único query. Prefetch_related para 1-n (1 post-n categorías)
+            possible_posts = Post.objects.filter(blog__owner__username=username, pk=post_id).select_related('blog')
+            post = possible_posts[0] if len(possible_posts) >=1 else None
 
-        if post is not None:
-            # Contexto con post a mostrar
-            context = {
-                "post": post
-            }
+            if post is not None:
+                # Contexto con post a mostrar
+                context = {
+                    "post": post
+                }
 
-            # cargamos template con los datos del contexto, que incluye el post a mostrar
-            return render(request, 'posts/detail.html', context)
+                # cargamos template con los datos del contexto, que incluye el post a mostrar
+                return render(request, 'posts/detail.html', context)
+            else:
+                # error 404 - post no encontrado
+                return HttpResponseNotFound('No existe el post')
         else:
-            # error 404 - post no encontrado
-            return HttpResponseNotFound('No existe el post')
-    else:
-        # error 404 - blog no encontrado
-        return HttpResponseNotFound('No existe el blog')
+            # error 404 - blog no encontrado
+            return HttpResponseNotFound('No existe el blog')
+
 
 # url /new_post
-@login_required()
-def create(request):
+class CreateView(View):
     """
-    Muestra un formulario para crear un post y la crea si la petición es POST. Con el decorador @login_required()
-    nos va a ejecutar esta función solamente en el caso de que el usuario esté autenticado. En caso contrario,
-    redirigirá a una url del paquete django.contrib.auth que redefinimos en el settings.py LOGIN_URL. Esta es la
-    magia que hace Django para redireccionar al usuario a una url en el caso de que intente acceder a una url
-    protegida sólo accesible si está autenticado.
-    :param request: Objeto HttpRequest con la petición
-    :return: HttpResponse
+    Vista basada en clase para el la creación de post. Tendremos que definir los métodos del HTTP get y post.
     """
-    success_message = ''
-    if request.method == 'GET':
+    @method_decorator(login_required())
+    def get(self, request):
+        """
+        Muestra un formulario para crear un post. Este formulario no se manda nunca por get, por lo que no es
+        necesario incluir mensajes de error.
+        :param request: Objeto HttpRequest con la petición
+        :return: HttpResponse
+        """
+
         # Formulario vacío si viene por GET
         form = PostForm()
-    else:
+
+        context = {
+            'form': form,
+            'success_message': ''
+        }
+
+        return self.renderize(request, context)
+
+    @method_decorator(login_required())
+    def post(self, request):
+        """
+        Crea un post en base a la información POST. Con el decorador @login_required() nos va a ejecutar esta función
+        solamente en el caso de que el usuario esté autenticado. En caso contrario, redirigirá a una url del paquete
+        django.contrib.auth que redefinimos en el settings.py LOGIN_URL. Esta es la magia que hace Django para
+        redireccionar al usuario a una url en el caso de que intente acceder a una url protegida sólo accesible si
+        está autenticado.
+        :param request: Objeto HttpRequest con la petición
+        :return: HttpResponse
+        """
+        success_message = ''
 
         # Creo un post vacío y le asigno el blog actual.
         post_with_blog = Post()
@@ -139,10 +166,20 @@ def create(request):
             success_message += '<a href="{0}">'.format(reverse('post_detail', args=[new_post.blog, new_post.pk]))
             success_message += 'Ver post'
             success_message += '</a>'
-    context = {
-        'form': form,
-        'success_message': success_message
-    }
-    # Cargamos template con los datos del contexto, que incluye el formulario basado en modelo
-    # En el template podemos incluir cada campo como <p>, <tr> de table o <li> de <ul>
-    return render(request, 'posts/new_post.html', context)
+
+        context = {
+            'form': form,
+            'success_message': success_message
+        }
+
+        return self.renderize(request, context)
+
+    def renderize(self, request, context):
+        """
+        Cargamos template con los datos del contexto, que incluye el formulario basado en modelo
+        En el template podemos incluir cada campo como <p>, <tr> de table o <li> de <ul>
+        :param request: HttpRequest
+        :param context: Contexto con los datos a los que el template tendrá acceso
+        :return: render que genera el HttpResponse con el context y el template indicados
+        """
+        return render(request, 'posts/new_post.html', context)

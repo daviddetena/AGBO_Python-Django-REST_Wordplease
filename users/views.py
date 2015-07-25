@@ -7,6 +7,7 @@ from users.forms import LoginForm
 from django.views.generic import View
 
 
+# url /
 class LoginView(View):
     """
     Vista basada en clase para el login. Tendremos que definir los métodos del HTTP get y post
@@ -80,16 +81,23 @@ class LoginView(View):
         # Mandamos respuesta con error a través de la plantilla
         return render(request, 'users/login.html', context)
 
+
 # url /logout/
-def logout(request):
+class LogoutView(View):
     """
-    Controlador para el logout de usuario (lo hace Django)
-    :param request: Objeto request de la petición
-    :return: HttpResponse con el código html que se entregará al usuario
+    Vista basada en clase para el logout. Tendremos que definir los métodos del HTTP get y post
     """
-    # Desautenticar usuario y redirigir al home
-    if request.user.is_authenticated():
-        django_logout(request)
-    # Redirige a la url de name='post_home'
-    return redirect('post_home')
+
+    def get(self, request):
+        """
+        Método para logout. La desauntenticación la hace Django. El logout siempre va por GET
+        :param request: HttpRequest
+        :return: render que contruye un HttpResponse con el template indicado
+
+        """
+        # Desautenticar usuario y redirigir al home
+        if request.user.is_authenticated():
+            django_logout(request)
+        # Redirige a la url de name='post_home'
+        return redirect('post_home')
 
