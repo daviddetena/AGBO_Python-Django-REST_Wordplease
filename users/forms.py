@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 
 class LoginForm(forms.Form):
@@ -43,5 +44,12 @@ class SignupForm(forms.ModelForm):
         """
         cleaned_data = super(SignupForm, self).clean()
 
-        return cleaned_data
+        # Comprobamos que no exista el usuario introducido
+        username = cleaned_data.get('username')
+
+        users = User.objects.filter(username=username)
+        if len(users) != 0:
+            raise ValidationError(u'Ya existe un usuario con ese nombre de usuario')
+        else:
+            return cleaned_data
 
