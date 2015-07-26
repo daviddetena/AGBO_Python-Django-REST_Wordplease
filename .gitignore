@@ -8,6 +8,18 @@ __pycache__/
 # C extensions
 *.so
 
+# JetBrains
+.idea/
+
+# Python
+*.pyc
+
+# DB
+db.sqlite3
+
+# OS
+.DS_Store
+
 # Distribution / packaging
 .Python
 env/
@@ -59,14 +71,4 @@ docs/_build/
 # PyBuilder
 target/
 
-# JetBrains
-.idea/
 
-# Python
-*.pyc
-
-# DB
-db.sqlite3
-
-# OS
-.DS_Store
