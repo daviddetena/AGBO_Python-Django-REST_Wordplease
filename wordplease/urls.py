@@ -14,6 +14,7 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+from blogs.api import BlogListAPI
 from django.conf.urls import include, url
 from django.contrib import admin
 from posts.api import PostListAPI, PostDetailAPI
@@ -48,5 +49,8 @@ urlpatterns = [
 
     # Posts' API URLs
     url(r'^api/1.0/posts/$', PostListAPI.as_view(), name='post_list_api'),     # API listado de posts
-    url(r'^api/1.0/posts/(?P<pk>[0-9]+)$', PostDetailAPI.as_view(), name='post_detail_api')     # API detalle de post
+    url(r'^api/1.0/posts/(?P<pk>[0-9]+)$', PostDetailAPI.as_view(), name='post_detail_api'),     # API detalle de post
+
+    # Blogs' API URLs
+    url(r'^api/1.0/blogs/$', BlogListAPI.as_view(), name='blog_list_api')  # API listado blogs
 ]

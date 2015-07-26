@@ -1,9 +1,6 @@
 #-*- coding: utf-8 -*-
 from posts.models import Post
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from rest_framework import status
 from posts.serializers import PostSerializer
 
 

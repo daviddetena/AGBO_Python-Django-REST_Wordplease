@@ -131,3 +131,11 @@ LOGIN_URL = '/login'    # cuando un usuario no esté autenticado, redirige a /lo
 
 # BADWORDS http://goo.gl/G2nCu7
 PROJECT_BADWORDS = [u'maricon', u'hijoputa',  u'hijo de puta', u'puta', u'puton', u'maricona', u'gilipollas', u'soplapollas', u'cabron', u'cabrón', u'maricón', u'putón']
+
+
+# REST_FRAMEWORK
+REST_FRAMEWORK = {
+    'PAGINATE_BY': 5,       # items por página
+    'PAGINATE_BY_PARAM': 'page_size',   # atributo GET con el que se controla el número de elementos por página
+    'MAX_PAGINATE_BY': 10   # máximo número de items por página
+}
