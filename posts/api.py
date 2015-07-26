@@ -1,25 +1,23 @@
 #-*- coding: utf-8 -*-
 from posts.models import Post
-from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from posts.serializers import PostSerializer
 
-class PostListAPI(APIView):
 
-    def get(self, request):
-        """
-        Endpoint de listado de posts. Devuelve
-        :param request:
-        :return:
-        """
-        # Recuperamos todos los posts de la base de datos
-        posts = Post.objects.all()
+class PostListAPI(ListCreateAPIView):
+    """
+    Heredando de ListCreateAPIView de generics permitimos que REST nos automatice el listado y creación de post
+    """
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
-        # El serializador por defecto serializa un objeto. Tenemos que indicarle que serialice
-        # todos los posts recibidos, poniendo many=True.
-        # El serializador se guarda los datos en data
-        serializer = PostSerializer(posts, many=True)
 
-        return Response(serializer.data)
+class PostDetailAPI(RetrieveUpdateDestroyAPIView):
+    """
+    Heredando de RetrieveUpdateDestroyAPIView de generics permitimos que REST nos automatice el detalle, actualización y borrado de un post.
+    """
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
