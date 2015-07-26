@@ -2,6 +2,8 @@
 from blogs.models import Blog
 from categories.models import Category
 from django.db import models
+from posts.validators import badwords_detector
+
 
 class Post(models.Model):
     """
@@ -9,9 +11,9 @@ class Post(models.Model):
     el usuario autenticado.
     """
     blog = models.ForeignKey(Blog)                                 # El blog es FK. Es un 1-n (1 blog - n posts)
-    title = models.CharField(max_length=100)
-    summary = models.CharField(max_length=200)
-    body = models.TextField()
+    title = models.CharField(max_length=100, validators=[badwords_detector])
+    summary = models.CharField(max_length=200, validators=[badwords_detector])
+    body = models.TextField(validators=[badwords_detector])
     imageUrl = models.URLField(blank=True, null=True, default="")   # Imagen url opcional
     created_at = models.DateTimeField(auto_now_add=True)            # Se guarda la fecha al crearse
     modified_at = models.DateTimeField(auto_now=True)               # Se actualiza cada vez que se guarde
