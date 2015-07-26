@@ -87,3 +87,14 @@ class UserDetailAPI(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        """
+        Endpoint de modificación de usuario. Por convención, se utiliza la url de listado con una petición DELETE para la eliminación de un objeto de ese listado.
+        """
+        # Obtenemos usuario a eliminar, y devolvemos error si no existe
+        user = get_object_or_404(User, pk=pk)
+
+        # Eliminamos usuario de la DB
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
