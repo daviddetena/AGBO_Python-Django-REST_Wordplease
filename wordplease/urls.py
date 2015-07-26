@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from posts.views import HomeView, UserPostsView, DetailView, CreateView, ListView
+from users.api import UserListAPI
 from users.views import LoginView, LogoutView
 from blogs.views import BlogsView
 
@@ -34,6 +35,9 @@ urlpatterns = [
     url(r'^login$', LoginView.as_view(), name='user_login'),    # login, con vista basada en clase LoginView
     url(r'^logout$', LogoutView.as_view(), name='user_logout'), # logout, con vista basada en clase LogoutView
 
-    url(r'^new-post/$', CreateView.as_view(), name='post_create')   # creación nuevo post, con vista basada en clase CreateView
-    #url(r'^.*$', '', name='url_not_found')                     # controlador para redirección a home
+    url(r'^new-post/$', CreateView.as_view(), name='post_create'),   # creación nuevo post, con vista basada en clase CreateView
+
+
+    # Users' API URLs
+    url(r'^api/1.0/users/$', UserListAPI.as_view(), name='user_list_api')      # url con listado de users para la API, basado en clases
 ]

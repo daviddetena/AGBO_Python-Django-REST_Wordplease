@@ -7,7 +7,7 @@ from posts.settings import BADWORDS
 
 class PostForm(forms.ModelForm):
     """
-    Hereamos de ModelForm para que genere un formulario automágicamente a partir de nuestro modelo Post
+    Heredamos de ModelForm para que genere un formulario automágicamente a partir de nuestro modelo Post
     """
 
     class Meta:
@@ -21,7 +21,7 @@ class PostForm(forms.ModelForm):
 
     def clean(self):
         """
-        Valida si en la descripción del post se han puesto tacos definidos en settings.BADWORDS
+        Valida si en el resumen y cuerpo del post se han puesto tacos definidos en settings.BADWORDS
         :return: diccionario con los atributos del formulario si OK
         """
         cleaned_data = super(PostForm, self).clean()    # clase padre limpia campos

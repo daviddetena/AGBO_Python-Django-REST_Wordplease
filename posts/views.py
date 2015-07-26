@@ -190,7 +190,7 @@ class CreateView(View):
             # nombrada en un controlador utilizamos la función reverse, con los argumentos de la url nombrada, en este
             # caso, el nombre del blog, y la pk del post.
             # Como por defecto Django escapa el HTML, necesitamos indicar que el enlace al nuevo post no escape HTML.
-            # Lo indicamos en la plantilla con el | safe en el mensaje. Lo normal es que este trabajo se haga en el
+            # Lo indicamos en la plantilla con el |safe en el mensaje. Lo normal es que este trabajo se haga en el
             # template
             form = PostForm()
             success_message = '¡Post creado con éxito!  '
