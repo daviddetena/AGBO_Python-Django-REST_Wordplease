@@ -23,8 +23,7 @@ class UserListAPI(APIView):
 
         # El serializador por defecto serializa un objeto. Tenemos que indicarle que serialice
         # todos los usuarios recibidos, poniendo many=True.
-        # El serializador se guarda los datos en users.data, transformándolo en una lista de
-        # diccionarios, con JSONRenderer
+        # El serializador se guarda los datos en data
         serializer = UserSerializer(users, many=True)
 
         # Con las clases APIView de REST framework automágicamente me hace la conversión de JSON, XML
