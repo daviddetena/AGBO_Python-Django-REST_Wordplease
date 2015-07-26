@@ -1,13 +1,13 @@
 #-*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from django.views.generic import View
+from rest_framework.views import APIView
 from users.serializers import UserSerializer
-from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
-class UserListAPI(View):
+class UserListAPI(APIView):
     """
-    Vista basada en clase para el listado de Users de la API Rest. En este caso, sólo se accede por GET
+    Vista basada en clase para el listado de Users de la API Rest. En este caso, sólo se accede por GET.
+    Las APIView nos proporciona un API rest navegable.
     """
 
     def get(self, request):
@@ -23,11 +23,8 @@ class UserListAPI(View):
         # El serializador se guarda los datos en users.data, transformándolo en una lista de
         # diccionarios, con JSONRenderer
         serializer = UserSerializer(users, many=True)
-        serialized_users = serializer.data
-        renderer = JSONRenderer()
 
-        # lista de diccionarios -> JSON
-        json_users = renderer.render(serialized_users)
-
-        return HttpResponse(json_users)
+        # Con las clases APIView de REST framework automágicamente me hace la conversión de JSON, XML
+        # a diccionarios, y viceversa, y sólo trabajamos con el DATA del serializer
+        return Response(serializer.data)
 

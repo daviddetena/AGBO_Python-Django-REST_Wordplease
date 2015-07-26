@@ -18,7 +18,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from posts.views import HomeView, UserPostsView, DetailView, CreateView, ListView
 from users.api import UserListAPI
-from users.views import LoginView, LogoutView
+from users.views import LoginView, LogoutView, SignupView
 from blogs.views import BlogsView
 
 urlpatterns = [
@@ -32,6 +32,9 @@ urlpatterns = [
     url(r'^posts/$', ListView.as_view(), name='post_list'),    # post de usuario autenticado/todos los posts, basada en clase PostUserView
     url(r'^blogs/(?P<username>[a-z]+)/$', UserPostsView.as_view(), name='blog_posts'),     # listado posts blog usuario, basada en la clase UserPostView
     url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', DetailView.as_view(), name='post_detail'),   # detalle post, basado en clase DetailView
+
+
+    url(r'^signup/$', SignupView.as_view(), name='user_signup'), # signup o creación de cuenta de usuario, con vista basada en clase SignupView
     url(r'^login$', LoginView.as_view(), name='user_login'),    # login, con vista basada en clase LoginView
     url(r'^logout$', LogoutView.as_view(), name='user_logout'), # logout, con vista basada en clase LogoutView
 

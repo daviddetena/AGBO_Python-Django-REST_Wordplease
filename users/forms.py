@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
 from django import forms
+from django.contrib.auth.models import User
+
 
 class LoginForm(forms.Form):
     """
@@ -7,6 +9,39 @@ class LoginForm(forms.Form):
     """
     # campos, siempre tienen que heredar de XXXField
     # Con widget indicamos de qué tipo queremos que pinte el campo
-    usr = forms.CharField(label="Nombre de usuario")
-    pwd = forms.CharField(label="Contraseña", widget=forms.PasswordInput())
+    usr = forms.CharField(label="Nombre de usuario", max_length=20)
+    pwd = forms.CharField(label="Contraseña", max_length=15, widget=forms.PasswordInput())
+
+"""
+class SignupForm(forms.Form):
+
+    first_name = forms.CharField(label="Nombre", max_length=20)
+    last_name = forms.CharField(label="Apellidos", max_length=40)
+    username = forms.CharField(label="Nombre de usuario", max_length=20)
+    email = forms.EmailField(max_length=40)
+    password = forms.CharField(label="Contraseña", max_length=15, widget=forms.PasswordInput())
+    """
+
+class SignupForm(forms.ModelForm):
+    """
+    Heredamos de ModelForm para que genere un formulario automágicamente a partir del modelo User
+    """
+
+    class Meta:
+        """
+        Definimos modelo base para crear el formulario. Incluimos sólo los campos que queremos
+        """
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'password']
+        widgets = {'password': forms.PasswordInput}
+
+
+    def clean(self):
+        """
+        Valida y limpia los datos del formulario
+        :return:
+        """
+        cleaned_data = super(SignupForm, self).clean()
+
+        return cleaned_data
 

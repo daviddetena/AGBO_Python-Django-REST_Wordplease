@@ -47,6 +47,8 @@
             <span style="float: right; margin-right: 10px">¡Hola, <strong>{{ user.first_name }} {{ user.last_name }}</strong>! </span>
         {% else %}
             <a href="{% url 'user_login' %}">Entrar</a>
+            |
+            <a href="{% url 'user_signup' %}">Registrarse</a>
         {% endif %}
     </nav>
     <hr>

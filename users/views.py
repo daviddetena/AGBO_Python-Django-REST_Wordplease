@@ -1,8 +1,10 @@
 # -* encoding:utf-8 *-
+from blogs.models import Blog
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as django_login, logout as django_logout, authenticate
 # url /login/
-from users.forms import LoginForm
+from users.forms import LoginForm, SignupForm
 # Para vistas basadas en clases
 from django.views.generic import View
 
@@ -101,3 +103,71 @@ class LogoutView(View):
         # Redirige a la url de name='post_home'
         return redirect('post_home')
 
+#url /signup/
+class SignupView(View):
+    """
+    Vista basada en clase para el registro de nuevo usuario.
+    Definimos qué hacer en los métodos GET y POST del request
+    """
+    def get(self, request):
+        """
+        Método para cuando el signup viene del método HTTP get
+        :param request: HttpRequest
+        :return: render que contruye un HttpResponse con el template indicado
+        """
+        # Mensajes de error al autenticar
+        error_messages = []
+
+        form = SignupForm()
+
+        # Creamos contexto con los mensajes de error
+        context = {
+            'errors': error_messages,
+            'signup_form': form
+        }
+
+        # Mandamos respuesta con error a través de la plantilla
+        return render(request, 'users/signup.html', context)
+
+    def post(self, request):
+        """
+        Método para cuando el signup viene del método HTTP get
+        :param request: HttpRquest
+        :return: render que contruye un HttpResponse con el template indicado
+        """
+
+        # Mensaje de éxito al crear nuevo usuario
+        success_message = ''
+
+        # Crearemos un Django Form para presentarlo en la plantilla
+        # Todos los valores del formulario se inicializan con los valores que vienen en el POST
+        form = SignupForm(request.POST)
+
+        # Si el formulario es válido, guardamos usuario
+        if form.is_valid():
+            new_user = User.objects.create_user(form.cleaned_data.get('username'), form.cleaned_data.get('email'), form.cleaned_data.get('password'))
+            new_user.first_name = form.cleaned_data.get('first_name')
+            new_user.last_name = form.cleaned_data.get('last_name')
+            new_user.is_staff = False
+
+            # Guardamos usuario
+            new_user.save()
+
+            # Creamos blog con el nuevo usuario
+            blog = Blog()
+            blog.owner = new_user
+            blog.save()
+
+            # Reseteamos formulario
+            form = SignupForm()
+
+            success_message = 'OK'
+
+        # Creamos contexto con mensaje éxito
+        context = {
+            'signup_form': form,
+            'success_message': success_message
+        }
+
+        # Mandamos respuesta con error a través de la plantilla
+        return render(request, 'users/signup.html', context)
