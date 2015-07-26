@@ -1,17 +1,20 @@
 #-*- coding: utf-8 -*-
 from blogs.models import Blog
 from django.contrib.auth.models import User
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from users.permissions import UserPermissions
 from users.serializers import UserSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 
-class UserListAPI(APIView):
+class UserListAPI(GenericAPIView):
     """
     Vista basada en clase para el listado de Users de la API Rest. En este caso, sólo se accede por GET.
     Las APIView nos proporciona un API rest navegable.
     """
+
+    permission_classes = (UserPermissions,)
 
     def get(self, request):
         """
@@ -53,10 +56,14 @@ class UserListAPI(APIView):
             # Devolvemos diccionario con errores y el código 400 (petición errónea) si algo fue mal
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserDetailAPI(APIView):
+
+class UserDetailAPI(GenericAPIView):
     """
     Vista basada en clase para el detalle de User.
     """
+
+    permission_classes = (UserPermissions,)
+
     def get(self, request, pk):
         """
         Endpoint detalle de usuario
@@ -69,6 +76,9 @@ class UserDetailAPI(APIView):
         # de búsqueda
         user = get_object_or_404(User, pk=pk)
 
+        # compruebo manualmente si el usuario autenticado puede hacer GET en este user
+        self.check_object_permissions(request, user)
+
         # Convertimos objeto user en diccionario, que es guardado en 'data'
         serializer = UserSerializer(user)
 
@@ -79,6 +89,10 @@ class UserDetailAPI(APIView):
         Endpoint de modificación de usuario. Por convención, se utiliza la url de listado con una petición PUT para la modificación de un objeto de ese listado. En el serializer.save() comprueba automáticamente si tiene instasncia del User; si la tiene, coge esa instancia y llama al update() del serializer; si no la tiene, llama al método create() del serializer, como en el caso del POST del UserListAPI
         """
         user = get_object_or_404(User, pk=pk)
+
+        # compruebo manualmente si el usuario autenticado puede hacer PUT en este user
+        self.check_object_permissions(request, user)
+
         # Actualiza los datos de la instancia recuperada con los datos que me pasan por la API
         serializer = UserSerializer(instance=user, data=request.data)
         if serializer.is_valid():
@@ -93,6 +107,9 @@ class UserDetailAPI(APIView):
         """
         # Obtenemos usuario a eliminar, y devolvemos error si no existe
         user = get_object_or_404(User, pk=pk)
+
+        # compruebo manualmente si el usuario autenticado puede hacer PUT en este user
+        self.check_object_permissions(request, user)
 
         # Eliminamos usuario de la DB
         user.delete()

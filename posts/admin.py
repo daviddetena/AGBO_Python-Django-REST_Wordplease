@@ -11,7 +11,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'summary', 'blog_owner_name', 'created_at', 'published_at')
 
     # Lista de filtros que aparecerán a la derecha
-    list_filter = ('blog',)
+    list_filter = ('blog', 'categories')
 
     # Lista de parámetros por los que se podrá buscar
     search_fields = ('title', 'summary', 'body')

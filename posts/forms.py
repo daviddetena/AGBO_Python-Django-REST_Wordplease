@@ -1,8 +1,6 @@
 #-*- coding: utf-8 -*-
 from django import forms
-from django.core.exceptions import ValidationError
 from posts.models import Post
-from posts.settings import BADWORDS
 
 
 class PostForm(forms.ModelForm):

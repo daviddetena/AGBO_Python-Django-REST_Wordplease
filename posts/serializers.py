@@ -12,6 +12,7 @@ class PostSerializer(serializers.ModelSerializer):
         Indicamos con model que el serializer está basado en el modelo Post
         """
         model = Post
+        read_only_fields = ('blog',)
 
 class PostListSerializer(PostSerializer):
     """
