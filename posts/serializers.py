@@ -12,3 +12,13 @@ class PostSerializer(serializers.ModelSerializer):
         Indicamos con model que el serializer está basado en el modelo Post
         """
         model = Post
+
+class PostListSerializer(PostSerializer):
+    """
+    Utilizamos otra clase de serializer para que el listado muestre otros campos distintos a los por defecto
+    """
+    class Meta(PostSerializer.Meta):
+        """
+        Heredamos de PostSerializer.Meta para que sepa qué model es
+        """
+        fields = ('title', 'imageUrl', 'summary', 'published_at')
