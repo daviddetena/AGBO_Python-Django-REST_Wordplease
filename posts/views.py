@@ -1,6 +1,7 @@
 # -* encoding:utf-8 *-
 from blogs.models import Blog
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
 from posts.forms import PostForm
@@ -9,8 +10,49 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 
-
+#Todo: Ver todos los listados segun los queryset. Cambiar las clases según estos y heredar de ello.
 # Convertimos nuestras vistas basadas en métodos en vistas basadas en clases.
+
+
+class PostsQuerySet(object):
+
+    """
+    Definimos métodos para los querysets según permisos
+    """
+    def get_posts_queryset(self, request):
+        """
+        Definimos queryset de listado de posts, según permisos
+        """
+
+        if not request.user.is_authenticated():
+            # Si no está autenticado => TODOS los PUBLICADOS
+            posts = Post.objects.filter(published_at__isnull=False)
+        elif request.user.is_superuser:
+            # Admin => TODOS los posts
+            posts = Post.objects.all()
+        else:
+            # No es admin y está autenticado => TODOS los de ese usuario, publicados o no, y los PUBLICOS del resto
+            # COMPROBAR DESPUES, O CREAR UN GET_POSTS_BLOG_QUERYSET para el nombre de blog.
+            posts = Post.objects.filter(Q(blog__owner=request.user) | Q(published_at__isnull=False))
+
+        # Ordenamos resultados por fecha de publicación, o de creación
+        return posts.order_by('-published_at', '-created_at')
+
+
+
+    def get_post_detail_queryset(self, request, pk):
+        """
+        Definimos queryset para el detalle de post. Llamamos al método anterior, para que filtre por pk.
+        """
+        posts = self.get_posts_queryset(request).filter(pk=pk)
+
+        if len(posts) == 1:
+            return posts[0]
+        else:
+            return None
+
+
+
 
 #url /
 class HomeView(View):
@@ -19,7 +61,8 @@ class HomeView(View):
     """
     def get(self, request):
         """
-        Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts
+        Controlador que se muestra para el directorio raíz de la plataforma con los últimos posts publicados, sea de
+        quien sea.
         :param request: Objeto request de la petición
         :return: Objeto HttpResponse con el código html que se entregará al usuario
         """
@@ -31,7 +74,7 @@ class HomeView(View):
         context = {
             # No carga en memoria todos los objetos, sino los 5 primeros. Aquí pondría el LIMIT X de SQL
             # Sólo en el momento en que la variable va a ser utilizada es traído de la DB
-            "post_list": posts
+            "post_list": posts[:5]
         }
 
         # Con el render hacemos que nos pinte la template indicada en el 2º param, que es un html
@@ -39,7 +82,7 @@ class HomeView(View):
 
 
 # url /blogs/<nombre_usuario>/
-class UserPostsView(View):
+class UserPostsView(View, PostsQuerySet):
 
     def get(self, request, username):
         """
@@ -51,6 +94,21 @@ class UserPostsView(View):
         """
 
         # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
+        possible_blogs = Blog.objects.filter(owner__username__exact=username)
+
+        if len(possible_blogs) == 1:
+            # Del PostsQuerySet filtramos aquellos posts que sean del blog del usuario requerido
+            possible_posts = self.get_posts_queryset(self.request).filter(blog__owner__username__exact=username)
+
+            context = {
+                "post_list": possible_posts
+            }
+            return render(request, 'posts/user_posts.html', context)
+        else:
+            # 404 - blog no encontrado
+            return HttpResponseNotFound('No existe el blog')
+
+        """
         possible_blogs = Blog.objects.filter(owner__username=username).order_by('-created_at')
         blog = possible_blogs[0] if len(possible_blogs) >=1 else None
 
@@ -74,10 +132,11 @@ class UserPostsView(View):
         else:
             # 404 - blog no encontrado
             return HttpResponseNotFound('No existe el blog')
+        """
 
 
 # url /blogs/<nombre_usuario>/<post_id>
-class DetailView(View):
+class DetailView(View, PostsQuerySet):
     """
     Vista basada en clase para el detalle de post. Tendremos que definir los métodos del HTTP get y post. En este caso, es sólo por GET
     """
@@ -89,6 +148,22 @@ class DetailView(View):
         :return: render que cargará la vista de detalle del post (por debajo, crea un HttpResponse)
         """
 
+        # Obtenemos queryset del detalle de post
+        possible_post = self.get_post_detail_queryset(self.request, post_id)
+        if possible_post is not None:
+            context = {
+                "post": possible_post
+            }
+            # cargamos template con los datos del contexto, que incluye el post a mostrar
+            return render(request, 'posts/detail.html', context)
+
+        else:
+            # error 404 - post no encontrado
+            return HttpResponseNotFound('No existe el post')
+
+
+
+        """
         # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
         possible_blogs = Blog.objects.filter(owner__username=username)
         blog = possible_blogs[0] if len(possible_blogs) >=1 else None
@@ -133,6 +208,7 @@ class DetailView(View):
         else:
             # error 404 - blog no encontrado
             return HttpResponseNotFound('No existe el blog')
+        """
 
 
 # url /new_post/
@@ -217,19 +293,20 @@ class CreateView(View):
 
 
 # url /posts/
+"""
 class ListView(View):
-    """
+
     Vista basada en clase para listado de post. Sólo tendremos peticiones por GET.
-    """
+
     def get(self, request):
-        """
+
         Devuelve igual que blogs/:
         - Si el usuario está autenticado o es administrador, todos los post del usuario autenticado, publicados o no.
         - Posts publicados del usuario, si no se está autenticado.
         Más recientes primero
         :param request: HttpRequest
         :return: render que genera el HttpResponse con el context y el template indicados
-        """
+
         if request.user.is_authenticated() or request.user.is_superuser:
             # Usuario autenticado. Ve todos sus posts, publicados o no
             posts = Post.objects.filter(blog=request.user.blog).order_by('-created_at')
@@ -242,3 +319,4 @@ class ListView(View):
         }
 
         return render(request, 'posts/post_list.html', context)
+"""

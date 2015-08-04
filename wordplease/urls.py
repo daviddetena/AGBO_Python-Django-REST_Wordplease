@@ -18,7 +18,7 @@ from blogs.api import BlogListAPI
 from django.conf.urls import include, url
 from django.contrib import admin
 from posts.api import PostListAPI, PostDetailAPI
-from posts.views import HomeView, UserPostsView, DetailView, CreateView, ListView
+from posts.views import HomeView, UserPostsView, DetailView, CreateView
 from users.api import UserListAPI, UserDetailAPI
 from users.views import LoginView, LogoutView, SignupView
 from blogs.views import BlogsView
@@ -30,8 +30,8 @@ urlpatterns = [
 
     # urls nombradas
     url(r'^blogs/$', BlogsView.as_view(), name='blog_home'),    # listado de blogs, con vista basada en clase BlogsView
-    url(r'^$', HomeView.as_view(), name='post_home'),           # listado de posts, con vista basada en clase HomeView
-    url(r'^posts/$', ListView.as_view(), name='post_list'),    # post de usuario autenticado/todos los posts, basada en clase PostUserView
+    url(r'^$', HomeView.as_view(), name='post_home'),           # listado de posts publicados, con vista basada en clase HomeView
+    #url(r'^posts/$', ListView.as_view(), name='post_list'),    # post de usuario autenticado/todos los posts, basada en clase PostUserView
     url(r'^blogs/(?P<username>[a-z]+)/$', UserPostsView.as_view(), name='blog_posts'),     # listado posts blog usuario, basada en la clase UserPostView
     url(r'^blogs/(?P<username>[a-zA-Z]+)/(?P<post_id>[0-9]+)$', DetailView.as_view(), name='post_detail'),   # detalle post, basado en clase DetailView
 
