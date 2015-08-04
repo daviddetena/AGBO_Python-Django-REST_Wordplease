@@ -39,10 +39,6 @@ class PostAdmin(admin.ModelAdmin):
         ('Addional info',{
             'fields': ('imageUrl', 'blog', 'categories'),
             'classes': ('wide',)
-        }),
-        ('Dates',{
-            'fields': ('published_at',),
-            'classes': ('wide', 'collapse')
         })
     )
 

@@ -18,7 +18,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)            # Se guarda la fecha al crearse
     modified_at = models.DateTimeField(auto_now=True)               # Se actualiza cada vez que se guarde
     categories = models.ManyToManyField(Category, blank=True, null=True)
-    published_at = models.DateTimeField(blank=True, null=True)
+    published_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __unicode__(self):
         """

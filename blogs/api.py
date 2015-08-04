@@ -7,5 +7,5 @@ class BlogListAPI(ListAPIView):
     """
     Heredando de ListAPIView de generics permitimos que REST nos automatice el listado de blogs
     """
-    queryset = Blog.objects.all()
+    queryset = Blog.objects.all().order_by('-owner')
     serializer_class = BlogSerializer

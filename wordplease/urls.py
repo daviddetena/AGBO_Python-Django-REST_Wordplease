@@ -49,7 +49,7 @@ urlpatterns = [
 
     # Posts' API URLs
     url(r'^api/1.0/posts/$', PostListAPI.as_view(), name='post_list_api'),     # API listado de posts
-    url(r'^api/1.0/posts/(?P<pk>[0-9]+)$', PostDetailAPI.as_view(), name='post_detail_api'),     # API detalle de post
+    url(r'^api/1.0/posts/(?P<pk>[0-9]+)$', PostDetailAPI.as_view(), name='post_detail_api'),     # API detalle de post: CRUD.
 
     # Blogs' API URLs
     url(r'^api/1.0/blogs/$', BlogListAPI.as_view(), name='blog_list_api')  # API listado blogs

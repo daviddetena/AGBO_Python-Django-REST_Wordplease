@@ -86,7 +86,7 @@ class UserDetailAPI(GenericAPIView):
 
     def put(self, request, pk):
         """
-        Endpoint de modificación de usuario. Por convención, se utiliza la url de listado con una petición PUT para la modificación de un objeto de ese listado. En el serializer.save() comprueba automáticamente si tiene instasncia del User; si la tiene, coge esa instancia y llama al update() del serializer; si no la tiene, llama al método create() del serializer, como en el caso del POST del UserListAPI
+        Endpoint de modificación de usuario. Por convención, se utiliza la url de listado con una petición PUT para la modificación de un objeto de ese listado. En el serializer.save() comprueba automáticamente si tiene instancia del User; si la tiene, coge esa instancia y llama al update() del serializer; si no la tiene, llama al método create() del serializer, como en el caso del POST del UserListAPI
         """
         user = get_object_or_404(User, pk=pk)
 
