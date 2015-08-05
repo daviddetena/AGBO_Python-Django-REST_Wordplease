@@ -1,5 +1,4 @@
 #-*- coding: utf-8 -*-
-from django.utils.datetime_safe import date
 from rest_framework.permissions import BasePermission
 
 class PostPermissions(BasePermission):
@@ -22,7 +21,6 @@ class PostPermissions(BasePermission):
             return request.user.is_authenticated()
         # por defecto no damos permiso
         else:
-            # GET a /api/1.0/posts/
             return False
 
     def has_object_permission(self, request, view, obj):
@@ -42,7 +40,7 @@ class PostPermissions(BasePermission):
         # podré leer un post si...
         elif view.action in ['retrieve', 'list']:
             # es público o si soy el dueño
-            return obj.published_at <= date.today() or request.user == obj.blog.owner
+            return obj.published_at is not None or request.user == obj.blog.owner
         # si no cumple nada de lo anterior
         else:
             False

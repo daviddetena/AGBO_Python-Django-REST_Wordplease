@@ -1,16 +1,19 @@
 #-*- coding: utf-8 -*-
 from posts.models import Post
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-#from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from posts.views import PostsQuerySet
 from posts.serializers import PostSerializer, PostListSerializer
 from posts.permissions import PostPermissions
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 
-class PostListAPI(ListCreateAPIView):
+class PostListAPI(PostsQuerySet, ListCreateAPIView):
     """
-    Heredando de ListCreateAPIView de generics permitimos que REST nos automatice el listado y creación de post
+    Heredando de ListCreateAPIView de generics permitimos que REST nos automatice el listado y creación de post.
+    GET: obtiene listado de post, utilizamos PostListSerializer.
+    POST: creamos nuevo post para el blog actual, si se puede.
     """
     #permission_classes = (IsAuthenticatedOrReadOnly,)      # Sólo lectura para no autenticados.
+    queryset = Post.objects.all()
     permission_classes = PostPermissions
 
     def get_serializer_class(self):
@@ -22,19 +25,9 @@ class PostListAPI(ListCreateAPIView):
 
     def get_queryset(self):
         """
-        Definimos los datos a mostrar según el usuario, redefiniendo el get_queryset del GenericView
+        Heredamos del queryset de posts/views.py para el listado de posts
         """
-        if self.request.user.is_authenticated():
-            if self.request.user.is_superuser:
-                # Admin ve todos, publicados o no
-                posts = Post.objects.all().order_by('-published_at')
-            else:
-                # Usuario autenticado. Ve todos sus posts, publicados o no
-                posts = Post.objects.filter(blog=self.request.user.blog).order_by('-published_at')
-        else:
-            # Usuarios no autenticados - Sólo posts públicos
-            posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
-        return posts
+        return self.get_posts_blog_queryset(self.request, self.request.user.username)
 
     def perform_create(self, serializer):
         """
@@ -44,32 +37,19 @@ class PostListAPI(ListCreateAPIView):
 
 
 
-class PostDetailAPI(RetrieveUpdateDestroyAPIView):
+class PostDetailAPI(PostsQuerySet, RetrieveUpdateDestroyAPIView):
     """
-    Heredando de RetrieveUpdateDestroyAPIView de generics permitimos que REST nos automatice el detalle,
-    actualización y borrado de un post.
+    Heredando de RetrieveUpdateDestroyAPIView de generics permitimos que REST nos automatice el detalle, actualización y borrado de un post.
+    GET: detalle de post.
+    PUT: actualización de post.
+    DELETE: eliminación de post.
     """
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = PostPermissions
 
     def get_queryset(self):
         """
-        Definimos los datos a mostrar según el usuario, redefiniendo el get_queryset del GenericView
+        Heredamos del queryset de posts/views.py para el detalle de post
         """
-        if self.request.user.is_authenticated():
-            if self.request.user.is_superuser:
-                # Admin ve todos, publicados o no
-                posts = Post.objects.all().order_by('-published_at')
-            else:
-                # Usuario autenticado. Ve todos sus posts, publicados o no
-                posts = Post.objects.filter(blog=self.request.user.blog).order_by('-published_at')
-        else:
-            # Usuarios no autenticados - Sólo posts públicos
-            posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
-        return posts
-
-    def perform_create(self, serializer):
-        """
-        Indicamos que el campo blog del objeto post sea el blog del usuario autenticado
-        """
-        serializer.save(blog=self.request.user.blog)
+        return self.get_posts_queryset(self.request)

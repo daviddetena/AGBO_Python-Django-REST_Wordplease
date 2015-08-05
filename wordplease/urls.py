@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'^api/1.0/users/(?P<pk>[0-9]+)$', UserDetailAPI.as_view(), name='user_detail_api'),     #url detalle usuario para la api
 
     # Posts' API URLs
-    url(r'^api/1.0/posts/$', PostListAPI.as_view(), name='post_list_api'),     # API listado de posts
+    url(r'^api/1.0/blogs/(?P<username>[a-z]+)/$', PostListAPI.as_view(), name='post_list_api'),     # API listado de posts de blog
     url(r'^api/1.0/posts/(?P<pk>[0-9]+)$', PostDetailAPI.as_view(), name='post_detail_api'),     # API detalle de post: CRUD.
 
     # Blogs' API URLs

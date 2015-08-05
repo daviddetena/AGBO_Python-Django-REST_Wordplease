@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 
-#Todo: Ver todos los listados segun los queryset. Cambiar las clases según estos y heredar de ello.
 # Convertimos nuestras vistas basadas en métodos en vistas basadas en clases.
 
 
@@ -21,7 +20,7 @@ class PostsQuerySet(object):
     """
     def get_posts_queryset(self, request):
         """
-        Definimos queryset de listado de posts, según permisos
+        Definimos queryset de listado de posts de todos los blogs, según permisos
         """
 
         if not request.user.is_authenticated():
@@ -32,8 +31,26 @@ class PostsQuerySet(object):
             posts = Post.objects.all()
         else:
             # No es admin y está autenticado => TODOS los de ese usuario, publicados o no, y los PUBLICOS del resto
-            # COMPROBAR DESPUES, O CREAR UN GET_POSTS_BLOG_QUERYSET para el nombre de blog.
             posts = Post.objects.filter(Q(blog__owner=request.user) | Q(published_at__isnull=False))
+
+        # Ordenamos resultados por fecha de publicación, o de creación
+        return posts.order_by('-published_at', '-created_at')
+
+
+    def get_posts_blog_queryset(self, request, username):
+        """
+        Definimos queryset de listado de posts de un blog.
+        """
+
+        if not request.user.is_authenticated():
+            # Si no está autenticado o  => TODOS los PUBLICADOS de ese blog
+            posts = Post.objects.filter(published_at__isnull=False, blog__owner__username__exact=username)
+        elif request.user.is_superuser or request.user.username == username:
+            # Administrador o dueño del blog => TODOS los posts del blog, publicados o no
+            posts = Post.objects.filter(blog__owner__username__exact=username)
+        else:
+            # Autenticado, pero no el dueño => TODOS los PUBLICADOS de ese blog
+            posts = Post.objects.filter(published_at__isnull=False, blog__owner__username__exact=username)
 
         # Ordenamos resultados por fecha de publicación, o de creación
         return posts.order_by('-published_at', '-created_at')
@@ -44,7 +61,7 @@ class PostsQuerySet(object):
         """
         Definimos queryset para el detalle de post. Llamamos al método anterior, para que filtre por pk.
         """
-        posts = self.get_posts_queryset(request).filter(pk=pk)
+        posts = self.get_posts_queryset(request).filter(pk=pk).select_related('blog')
 
         if len(posts) == 1:
             return posts[0]
@@ -53,7 +70,7 @@ class PostsQuerySet(object):
 
 
 #url /
-class HomeView(View):
+class HomeView(View, PostsQuerySet):
     """
     Vista basada en clase para el home. Tendremos que definir los métodos del HTTP get y post. En este caso, es sólo por GET
     """
@@ -66,7 +83,9 @@ class HomeView(View):
         """
         # A través del object manager de clase <objects> obtenemos los objetos del modelo Post. Configura la query
         # Obtenemos todos los post publicados
-        posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
+        #posts = Post.objects.filter(published_at__isnull=False).order_by('-published_at')
+
+        posts = self.get_posts_queryset(self.request)
 
         # El context es lo que se le pasará al template, siendo las claves del diccionario accesibles desde ellas
         context = {
@@ -91,6 +110,17 @@ class UserPostsView(View, PostsQuerySet):
         :return: render que cargará la vista de detalle del blog (por debajo, crea un HttpResponse)
         """
 
+        possible_posts = self.get_posts_blog_queryset(self.request, username)
+        if len(possible_posts) > 0:
+            context = {
+                "post_list": possible_posts
+            }
+            return render(request, 'posts/user_posts.html', context)
+        else:
+            # 404 - blog no encontrado
+            return HttpResponseNotFound('No existe el blog')
+
+        """
         # OBTENER BLOG CUYO NAME = EL PARAMETRO. OBTENER POSTS DE ESE BLOG
         possible_blogs = Blog.objects.filter(owner__username__exact=username)
 
@@ -105,6 +135,7 @@ class UserPostsView(View, PostsQuerySet):
         else:
             # 404 - blog no encontrado
             return HttpResponseNotFound('No existe el blog')
+        """
 
 
 # url /blogs/<nombre_usuario>/<post_id>
