@@ -10,6 +10,23 @@ class PostPermissions(BasePermission):
         :param view:
         :return:
         """
+        from posts.api import PostDetailAPI
+
+        # Todos pueden hacer GET, en has_object_permission definimos
+        if request.method == "GET":
+            return True
+        # si no es GET, super admin siempre puede
+        elif request.user.is_superuser:
+            return True
+        # si es un POST, PUT, DELETE, sólo usuarios autenticados podrán, pero has_object_permissions decidirá sobre el permiso final
+        elif isinstance(view, PostDetailAPI):
+            return True
+        else:
+            # Denegado por defecto
+            return False
+
+
+        """
         # admin puede hacer lo que quiera
         if request.user.is_superuser:
             return True
@@ -22,6 +39,7 @@ class PostPermissions(BasePermission):
         # por defecto no damos permiso
         else:
             return False
+        """
 
     def has_object_permission(self, request, view, obj):
         """
@@ -30,6 +48,24 @@ class PostPermissions(BasePermission):
         :param view:
         :param obj:
         :return:
+        """
+        return request.user.is_superuser or request.user == obj.blog.owner
+
+        """
+        # admin puede hacer lo que quiera
+        if request.user.is_superuser:
+            return True
+        # Vista detalle GET, accesible si el post es público o si soy el dueño
+        elif request.method == "GET":
+            return obj.published_at is not None or request.user == obj.blog.owner
+        # Operaciones de modificación, creación y eliminación => Sólo dueño o admin
+        elif request.method in ('PUT', 'POST', 'DELETE'):
+            return request.user == obj.blog.owner
+        # por defecto no damos permiso
+        else:
+            return False
+        """
+
         """
         # si es superadmin -> True
         if request.user.is_superuser:
@@ -44,3 +80,4 @@ class PostPermissions(BasePermission):
         # si no cumple nada de lo anterior
         else:
             False
+        """

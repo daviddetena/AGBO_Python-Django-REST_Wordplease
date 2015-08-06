@@ -14,7 +14,7 @@ class PostListAPI(PostsQuerySet, ListCreateAPIView):
     """
     #permission_classes = (IsAuthenticatedOrReadOnly,)      # Sólo lectura para no autenticados.
     queryset = Post.objects.all()
-    permission_classes = PostPermissions
+    permission_classes = (PostPermissions,)
 
     def get_serializer_class(self):
         """
@@ -27,7 +27,7 @@ class PostListAPI(PostsQuerySet, ListCreateAPIView):
         """
         Heredamos del queryset de posts/views.py para el listado de posts
         """
-        return self.get_posts_blog_queryset(self.request, self.request.user.username)
+        return self.get_posts_blog_queryset(self.request, self.kwargs.get('username'))
 
     def perform_create(self, serializer):
         """
@@ -46,7 +46,7 @@ class PostDetailAPI(PostsQuerySet, RetrieveUpdateDestroyAPIView):
     """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = PostPermissions
+    permission_classes = (PostPermissions,)
 
     def get_queryset(self):
         """

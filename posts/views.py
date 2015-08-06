@@ -42,6 +42,16 @@ class PostsQuerySet(object):
         Definimos queryset de listado de posts de un blog.
         """
 
+        if request.user.is_superuser or request.user.username == username:
+            # Administrador o dueño del blog => TODOS los posts del blog, publicados o no
+            posts = Post.objects.filter(blog__owner__username__exact=username)
+        else:
+            # Autenticado, pero no el dueño, o no autenticado => TODOS los PUBLICADOS de ese blog
+            posts = Post.objects.filter(published_at__isnull=False, blog__owner__username__exact=username)
+
+
+
+        """
         if not request.user.is_authenticated():
             # Si no está autenticado o  => TODOS los PUBLICADOS de ese blog
             posts = Post.objects.filter(published_at__isnull=False, blog__owner__username__exact=username)
@@ -51,7 +61,7 @@ class PostsQuerySet(object):
         else:
             # Autenticado, pero no el dueño => TODOS los PUBLICADOS de ese blog
             posts = Post.objects.filter(published_at__isnull=False, blog__owner__username__exact=username)
-
+        """
         # Ordenamos resultados por fecha de publicación, o de creación
         return posts.order_by('-published_at', '-created_at')
 
